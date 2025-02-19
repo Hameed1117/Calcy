@@ -9,7 +9,8 @@ def main():
     """Main function to handle user input."""
     try:
         if len(sys.argv) != 4:
-            raise ValueError("Usage: python main.py <num1> <num2> <operation>")
+            print("Usage: python main.py <num1> <num2> <operation>")
+            return
         
         num_one, num_two, operation = sys.argv[1], sys.argv[2], sys.argv[3]
 

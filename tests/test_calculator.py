@@ -1,10 +1,11 @@
 """
-Test cases for the advanced calculator module
+Test cases for the advanced calculator module, using Faker for randomized test data.
 """
 import pytest
+from tests.faker_generator import generate_fake_number
 from calculator.calculator import Calculator, Calculations
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def clear_calculations():
     """Fixture to clear calculation history before and after tests"""
     Calculations.clear_history()
@@ -17,7 +18,7 @@ def clear_calculations():
     (0, 0, 0)
 ])
 def test_add(clear_calculations, num_one, num_two, expected):
-    """Test addition operation"""
+    """Test addition operation with predefined values"""
     assert Calculator.add(num_one, num_two) == expected
 
 @pytest.mark.parametrize("num_one, num_two, expected", [
@@ -26,7 +27,7 @@ def test_add(clear_calculations, num_one, num_two, expected):
     (0, 5, -5)
 ])
 def test_subtract(clear_calculations, num_one, num_two, expected):
-    """Test subtraction operation"""
+    """Test subtraction operation with predefined values"""
     assert Calculator.subtract(num_one, num_two) == expected
 
 @pytest.mark.parametrize("num_one, num_two, expected", [
@@ -35,7 +36,7 @@ def test_subtract(clear_calculations, num_one, num_two, expected):
     (0, 5, 0)
 ])
 def test_multiply(clear_calculations, num_one, num_two, expected):
-    """Test multiplication operation"""
+    """Test multiplication operation with predefined values"""
     assert Calculator.multiply(num_one, num_two) == expected
 
 @pytest.mark.parametrize("num_one, num_two, expected", [
@@ -44,7 +45,7 @@ def test_multiply(clear_calculations, num_one, num_two, expected):
     (5, 2, 2.5)
 ])
 def test_divide(clear_calculations, num_one, num_two, expected):
-    """Test division operation"""
+    """Test division operation with predefined values"""
     assert Calculator.divide(num_one, num_two) == expected
 
 def test_divide_by_zero(clear_calculations):
@@ -69,3 +70,16 @@ def test_clear_history(clear_calculations):
     assert len(Calculations.get_history()) == 1
     Calculations.clear_history()
     assert len(Calculations.get_history()) == 0
+
+@pytest.mark.parametrize("operation, func", [
+    ("add", Calculator.add),
+    ("subtract", Calculator.subtract),
+    ("multiply", Calculator.multiply),
+    ("divide", Calculator.divide)
+])
+def test_operations_with_faker(clear_calculations, operation, func):
+    """Test all operations using Faker-generated numbers"""
+    num_one = generate_fake_number()
+    num_two = generate_fake_number() if operation != "divide" else generate_fake_number() + 1
+    expected_result = func(num_one, num_two)
+    assert expected_result is not None

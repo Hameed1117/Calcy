@@ -1,7 +1,7 @@
 # calculator/__init__.py
 import sys
 import random
-from . import calculator  # Use relative import to access calculator.py
+from . import calculator
 
 def print_menu(command_map):
     """Print available commands vertically."""
@@ -25,30 +25,78 @@ def print_usage():
     ]
     print("\n".join(usage_info))
 
-class App:
-    @staticmethod
-    def start() -> None:
-        # A list of jokes for the 'joke' command
-        jokes = [
+# Abstract Command class
+class Command:
+    def execute(self, *args):
+        raise NotImplementedError("Subclasses must implement this method.")
+
+# Command implementations
+class AddCommand(Command):
+    def execute(self, a, b):
+        return calculator.Calculator.add(float(a), float(b))
+
+class SubtractCommand(Command):
+    def execute(self, a, b):
+        return calculator.Calculator.subtract(float(a), float(b))
+
+class MultiplyCommand(Command):
+    def execute(self, a, b):
+        return calculator.Calculator.multiply(float(a), float(b))
+
+class DivideCommand(Command):
+    def execute(self, a, b):
+        return calculator.Calculator.divide(float(a), float(b))
+
+class HistoryCommand(Command):
+    def execute(self):
+        print("\n".join(str(calc) for calc in calculator.Calculations.get_history()))
+
+class UsageCommand(Command):
+    def execute(self):
+        print_usage()
+
+class GreetCommand(Command):
+    def execute(self):
+        print("Hello there! Welcome to the Advanced Calculator!")
+
+class JokeCommand(Command):
+    def __init__(self):
+        self.jokes = [
             "Why did the math book look sad? Because it had too many problems.",
             "I told a joke about a calculator... It wasn't very calculating.",
             "Parallel lines have so much in common. It’s a shame they’ll never meet."
         ]
-        
-        # Define the command mapping: command name -> (callable, expected argument count)
+    def execute(self):
+        print(random.choice(self.jokes))
+
+class ExitCommand(Command):
+    def execute(self):
+        sys.exit(print("Exiting..."))
+
+class MenuCommand(Command):
+    def __init__(self, command_map):
+        self.command_map = command_map
+    def execute(self):
+        print_menu(self.command_map)
+
+# The App class remains the entry point.
+class App:
+    @staticmethod
+    def start() -> None:
+        # Build the command mapping: command name -> (Command instance, expected number of arguments)
         command_map = {
-            'add': (lambda a, b: calculator.Calculator.add(float(a), float(b)), 2),
-            'subtract': (lambda a, b: calculator.Calculator.subtract(float(a), float(b)), 2),
-            'multiply': (lambda a, b: calculator.Calculator.multiply(float(a), float(b)), 2),
-            'divide': (lambda a, b: calculator.Calculator.divide(float(a), float(b)), 2),
-            'history': (lambda: print("\n".join(str(calc) for calc in calculator.Calculations.get_history())), 0),
-            'usage': (lambda: print_usage(), 0),
-            'greet': (lambda: print("Hello there! Welcome to the Advanced Calculator!"), 0),
-            'joke': (lambda: print(random.choice(jokes)), 0),
-            'exit': (lambda: sys.exit(print("Exiting...")), 0)
+            'add': (AddCommand(), 2),
+            'subtract': (SubtractCommand(), 2),
+            'multiply': (MultiplyCommand(), 2),
+            'divide': (DivideCommand(), 2),
+            'history': (HistoryCommand(), 0),
+            'usage': (UsageCommand(), 0),
+            'greet': (GreetCommand(), 0),
+            'joke': (JokeCommand(), 0),
+            'exit': (ExitCommand(), 0)
         }
-        # Add the "menu" command to print commands vertically.
-        command_map['menu'] = (lambda: print_menu(command_map), 0)
+        # Menu command depends on the command_map, so add it afterward.
+        command_map['menu'] = (MenuCommand(command_map), 0)
         
         print("Welcome to the Advanced Calculator!")
         print("Type 'menu' to display available commands.")
@@ -61,10 +109,11 @@ class App:
                 parts = user_input.split()
                 cmd = parts[0]
                 args = parts[1:]
-                func, expected_args = command_map[cmd]
+                # Look up the command; this follows EAFP style.
+                command, expected_args = command_map[cmd]
                 if len(args) != expected_args:
-                    raise TypeError
-                result = func(*args)
+                    raise TypeError("Incorrect number of arguments.")
+                result = command.execute(*args)
                 if result is not None:
                     print("Result:", result)
             except KeyError:

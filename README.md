@@ -1,3 +1,2 @@
 # Calcy
-Updated day to day calculator
-Features app functionality
+Hello there! Welcome to the Advanced Calculator!ity

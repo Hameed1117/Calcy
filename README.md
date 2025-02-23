@@ -1,2 +1,2 @@
 # Calcy
-Hello there! Welcome to the Advanced Calculator!ity
+Hello there! Welcome to the Advanced Calculator!

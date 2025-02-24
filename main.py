@@ -2,7 +2,8 @@
 from calculator import App
 
 def main():
-    App.start()
+    app = App()
+    app.start()
 
 if __name__ == "__main__":
     main()

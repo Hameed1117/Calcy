@@ -23,8 +23,8 @@ def load_plugins():
                 module = importlib.import_module(f"calculator.plugins.{plugin_name}")
                 if hasattr(module, "get_command"):
                     cmd_tuple = module.get_command()  # (name, instance, expected_args)
-                    command_name, command_instance, _ = cmd_tuple  # We don't enforce arg count here
-                    command_map[command_name] = command_instance
+                    command_name, command_instance, expected_args = cmd_tuple
+                    command_map[command_name] = (command_instance, expected_args)
             except Exception as e:
                 print(f"Failed to load plugin {plugin_name}: {e}")
     return command_map
@@ -38,16 +38,22 @@ def print_menu(command_map):
 class App:
     def __init__(self):
         self.command_handler = CommandHandler()
-        # Load plugins and register each command with the handler.
-        plugins = load_plugins()
-        for name, cmd_instance in plugins.items():
-            self.command_handler.register_command(name, cmd_instance)
+        # Load plugins and register each command with its expected argument count.
+        plugins = load_plugins()  # returns dict mapping command name -> (command_instance, expected_args)
+        for name, (cmd_instance, expected_args) in plugins.items():
+            self.command_handler.register_command(name, cmd_instance, expected_args)
 
     def start(self):
         print("Welcome to the Advanced Calculator!")
         print("Type 'menu' to display available commands.")
-        # Add a built-in 'menu' command if not provided by plugins:
-        self.command_handler.register_command("menu", MenuCommand(self.command_handler.commands))
+        # If no plugin provides a 'menu' command, register a built-in one.
+        if "menu" not in self.command_handler.commands:
+            class MenuCommand:
+                def __init__(self, command_map):
+                    self.command_map = command_map
+                def execute(self, *args):
+                    print_menu(self.command_map)
+            self.command_handler.register_command("menu", MenuCommand(self.command_handler.commands), 0)
         while True:
             try:
                 user_input = input(">>> ").strip()
@@ -61,11 +67,3 @@ class App:
                     print("Result:", result)
             except Exception as e:
                 print("Error:", e)
-
-# A simple built-in menu command implemented as a plugin fallback.
-class MenuCommand:
-    def __init__(self, command_map):
-        self.command_map = command_map
-
-    def execute(self, *args):
-        print_menu(self.command_map)

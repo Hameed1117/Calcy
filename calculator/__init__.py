@@ -6,8 +6,8 @@ loading plugins, and running the interactive command loop.
 import os
 import pkgutil
 import importlib
+import logging
 from .commands.command import CommandHandler
-
 
 def load_plugins():
     """
@@ -33,9 +33,8 @@ def load_plugins():
                     command_name, command_instance, expected_args = cmd_tuple
                     command_map[command_name] = (command_instance, expected_args)
             except Exception as e:  # pylint: disable=broad-exception-caught
-                print(f"Failed to load plugin {plugin_name}: {e}")
+                logging.error("Failed to load plugin %s: %s", plugin_name, e)
     return command_map
-
 
 def print_menu(command_map):
     """
@@ -47,7 +46,6 @@ def print_menu(command_map):
     print("Available commands:")
     for cmd in command_map:
         print(f" - {cmd}")
-
 
 class App:
     """Application class for the Advanced Calculator."""
@@ -72,7 +70,6 @@ class App:
         if "menu" not in self.command_handler.commands:
             class MenuCommand:
                 """Built-in command to display the menu of available commands."""
-
                 def __init__(self, command_map):
                     """
                     Initialize the MenuCommand.
@@ -99,4 +96,5 @@ class App:
                 if result is not None:
                     print("Result:", result)
             except Exception as e:  # pylint: disable=broad-exception-caught
+                logging.error("An error occurred in the interactive loop", exc_info=True)
                 print("Error:", e)

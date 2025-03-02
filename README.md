@@ -7,6 +7,6 @@ I started this project as an advanced calculator built with a command pattern, R
 
 **Environment Variables:** Implemented configuration management with a .env file (using python-dotenv), ensuring sensitive information remains secure.
 
-**Continuous Integration:** Added a GitHub Actions workflow to automatically run tests on every push to the main branch.
+**Continuous Integration:** Added a GitHub Actions workflow to automatically run tests on every push to the production branch.
 
 For more details on additional functionalities, please check the other branches.

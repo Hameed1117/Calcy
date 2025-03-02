@@ -18,3 +18,5 @@ Traceback (most recent call last):
   File "/home/khadhar/IS601/Calcy/calculator/commands/command.py", line 46, in execute_command
     raise TypeError("Incorrect number of arguments.")
 TypeError: Incorrect number of arguments.
+2025-03-02 14:07:51,458 - INFO - Running in development environment
+2025-03-02 14:07:51,460 - INFO - Starting Advanced Calculator application

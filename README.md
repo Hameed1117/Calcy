@@ -1,5 +1,10 @@
 # Calcy
-Updated day to day calculator
+
+Hello there! Welcome to updated day to day calculator
 
 
-check other branches for different functionalities
+Please check other branches for different functionalities by changing the branches. This is main branch is basic version of calculator
+
+Production branch deals with logging and Environment variables.
+
+ 
